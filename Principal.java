@@ -9,16 +9,21 @@ public class Principal{
 	public static void main(String[] args){
 		try{
 			Tablero tablero = new Tablero();
-
-			tablero.generarEstadoActualPorMontecarlo();
+			System.out.println("Simulación con tablero leido");
 			tablero.leerEstadoActual();
-			System.out.println();
-			System.out.println();
-			for (int i=0; i<100;i++){
+			System.out.println(tablero);
+			for(int i=0; i<=5; i++){
 				TimeUnit.SECONDS.sleep(1);
 				tablero.transitarAlEstadoSiguiente();
-				System.out.println();
-				System.out.println();
+				System.out.println(tablero);
+			}
+			System.out.println("SIMULACION CON TABLERO GENERADO MEDIANTE MONTECARLO");
+			tablero.generarEstadoActualPorMontecarlo();
+			System.out.println(tablero);
+			for (int i=0; i<15;i++){
+				TimeUnit.SECONDS.sleep(1);
+				tablero.transitarAlEstadoSiguiente();
+				System.out.println(tablero);
 			}
 		}
 		catch (InterruptedException e){
