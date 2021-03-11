@@ -1,37 +1,39 @@
+/**
+ * El 'Juego de la vida'
+ *
+ * Esta clase es responsable de leer el tablero de un fichero en forma
+ * de ceros y unos, ir transitando de estados e ir mostrando dichos estados.
+ *
+ * @author Jesús Joana Azuara
+ * @version 11.03.2021
+ */
 
 package dominio;
 import java.io.*;
 import java.util.*;
 
-/**
- * Esta clase es responsable de leer el tablero de un fichero en forma
- * de ceros y unos, ir transitando de estados e ir mostrando dichos
- * estados.
- */
-
 public class Tablero{
 
-	private static int DIMENSION = 30;
-	private final String NOMBREFICHERO = "./src/matriz";
-	// Matriz que representa el estado actual
-	private int[][] estadoActual = new int[DIMENSION][DIMENSION];
-	private String representacionCelulas;
-	// Matriz que representa el estado siguiente
-	private int[][] estadoSiguiente = new int[DIMENSION][DIMENSION];
+	private static int DIMENSION = 30; // Tamaño del array
+	private final String NOMBREFICHERO = "./src/matriz";	// Archivo de 0 y 1 en binario
+	private int[][] estadoActual = new int[DIMENSION][DIMENSION]; // Matriz que representa el estado actual
+	private String representacionCelulas; // Variable endonde almacenamos el String de toString()
+	private int[][] estadoSiguiente = new int[DIMENSION][DIMENSION]; // Matriz que representa el estado siguiente
 
 	/**
-	 * Método utilizado para leer el estao inicial desde un fichero
-	 * llamado 'matriz'.
+	 * Lee el estado inicial de un fichero llamado 'matriz'.
 	 */
+	public void leerEstadoActual(){
+	//La secuencia de ceros y unos del fichero es guardada en 'estadoActual[][]' y, utilizando las reglas
+	//del juego de la vida, se insertan los ceros y unos corresponientes en 'estadoSiguiente[][]'.
 
-	public void leerEstadoActual(){ // ----------------------------------Método que lee el archivo con el estado inicial --------
 		try{
 			FileInputStream fis = new FileInputStream (NOMBREFICHERO);
 			ObjectInputStream ois = new ObjectInputStream (fis);
 			int i = 0;
-			while(i<30){
+			while(i<DIMENSION){
 				int j = 0;
-				while(j<30){
+				while(j<DIMENSION){
 					if (ois.readBoolean()==true){
 						estadoActual[i][j]=1;
 					}
@@ -51,10 +53,18 @@ public class Tablero{
 		}
 	}
 
-	public void generarEstadoActualPorMontecarlo(){ // ------------------Método que genera el archivo con el estado inicial ------
+	/**
+	 * Genera un estado inicial aleatorio, para cada delda genera un número aleatorio en el intervalo [0,1)
+	 * Si el número es es menor que 0.5, entonces la célula esta inicialmente viva En caso contrario
+	 * esta muerta.
+	 */
+	public void generarEstadoActualPorMontecarlo(){
+	//La secuencia de ceros y unos generadas es guardada en 'estadoActual[][]' y, utilizando las reglas
+	//del juego de la vida, se insertan ceros y unos corresponientes en 'estadoSiguiente[][].
+
 		double numeroAleatorio;
-		for(int i=0; i<30; i++){
-			for(int j=0; j<30; j++){
+		for(int i=0; i<DIMENSION; i++){
+			for(int j=0; j<DIMENSION; j++){
 				numeroAleatorio = Math.random();
 				if (numeroAleatorio<0.5){
 					estadoActual[i][j]=0;
@@ -67,11 +77,10 @@ public class Tablero{
 		try{
 			FileOutputStream fos = new FileOutputStream (NOMBREFICHERO);
 			ObjectOutputStream oos = new ObjectOutputStream (fos);
-			oos.flush();
 			int i = 0;
-			while(i<30){
+			while(i<DIMENSION){
 				int j = 0;
-				while(j<30){
+				while(j<DIMENSION){
 					if(estadoActual[i][j]==0){
 						oos.writeBoolean(false);
 					}else{
@@ -92,7 +101,12 @@ public class Tablero{
 		}
 	}
 
-	public void transitarAlEstadoSiguiente(){ //------------------------Método que realiza la transición de estados--------------
+	/**
+	 * Transita al estado siguiente según las reglas del juego de la vida
+	 */
+	public void transitarAlEstadoSiguiente(){
+	//La variable 'estadoActual[][]' pasa a tener el contenido de 'estadoSiguiente[][]' y, este
+	//último atributo pasa a reflejar el estado siguiente.
 		int celdaEstadoActual;
 		int celdaEstadoSiguiente;
 		int cuentaCelulasVivas;
@@ -116,65 +130,65 @@ public class Tablero{
 			estadoSiguiente[0][0]=0;	
 		}
 
-		// Compruebo la celda (0,29) ----------------------------------------------------------------------
+		// Compruebo la celda (0,29) ------------------------------------------------------------------
 		cuentaCelulasVivas=0;
-		if(estadoActual[0][28]==1){
+		if(estadoActual[0][DIMENSION-2]==1){
 			cuentaCelulasVivas++;
 		}
-		if(estadoActual[1][28]==1){
+		if(estadoActual[1][DIMENSION-2]==1){
 			cuentaCelulasVivas++;
 		}
-		if(estadoActual[1][29]==1){
+		if(estadoActual[1][DIMENSION-1]==1){
 			cuentaCelulasVivas++;
 		}
-		if(estadoActual[0][29] == 1 && (cuentaCelulasVivas ==2 || cuentaCelulasVivas == 3)){
-			estadoSiguiente[0][29]=1;
-		}else if(estadoActual[0][29] == 0 && cuentaCelulasVivas == 3){
-			estadoSiguiente[0][29]=1;
+		if(estadoActual[0][DIMENSION-1] == 1 && (cuentaCelulasVivas ==2 || cuentaCelulasVivas == 3)){
+			estadoSiguiente[0][DIMENSION-1]=1;
+		}else if(estadoActual[0][DIMENSION-1] == 0 && cuentaCelulasVivas == 3){
+			estadoSiguiente[0][DIMENSION-1]=1;
 		}else{
-			estadoSiguiente[0][29]=0;	
+			estadoSiguiente[0][DIMENSION-1]=0;	
 		}
 
-		// Compruebo la celda (29,29) ----------------------------------------------------------------------
+		// Compruebo la celda (29,29) -----------------------------------------------------------------
 		cuentaCelulasVivas=0;
-		if(estadoActual[29][28]==1){
+		if(estadoActual[DIMENSION-1][DIMENSION-2]==1){
 			cuentaCelulasVivas++;
 		}
-		if(estadoActual[28][28]==1){
+		if(estadoActual[DIMENSION-2][DIMENSION-2]==1){
 			cuentaCelulasVivas++;
 		}
-		if(estadoActual[28][29]==1){
+		if(estadoActual[DIMENSION-2][DIMENSION-1]==1){
 			cuentaCelulasVivas++;
 		}
-		if(estadoActual[29][29] == 1 && (cuentaCelulasVivas ==2 || cuentaCelulasVivas == 3)){
-			estadoSiguiente[29][29]=1;
-		}else	if(estadoActual[29][29] == 0 && cuentaCelulasVivas == 3){
-			estadoSiguiente[29][29]=1;
+		if(estadoActual[DIMENSION-1][DIMENSION-1] == 1 && (cuentaCelulasVivas ==2 || cuentaCelulasVivas == 3)){
+			estadoSiguiente[DIMENSION-1][DIMENSION-1]=1;
+		}else	if(estadoActual[DIMENSION-1][DIMENSION-1] == 0 && cuentaCelulasVivas == 3){
+			estadoSiguiente[DIMENSION-1][DIMENSION-1]=1;
 		}else{
-			estadoSiguiente[29][29]=0;	
+			estadoSiguiente[DIMENSION-1][DIMENSION-1]=0;	
 		}
 
-		// Compruebo la celda (29,0) -----------------------------------------------------------------------------
+		// Compruebo la celda (29,0) -----------------------------------------------------------------
 		cuentaCelulasVivas=0;
-		if(estadoActual[28][0]==1){
+		if(estadoActual[DIMENSION-2][0]==1){
 			cuentaCelulasVivas++;
 		}
-		if(estadoActual[28][1]==1){
+		if(estadoActual[DIMENSION-2][1]==1){
 			cuentaCelulasVivas++;
 		}
-		if(estadoActual[29][1]==1){
+		if(estadoActual[DIMENSION-1][1]==1){
 			cuentaCelulasVivas++;
 		}
-		if(estadoActual[29][0] == 1 && (cuentaCelulasVivas ==2 || cuentaCelulasVivas == 3)){
-			estadoSiguiente[29][0]=1;
-		}else if(estadoActual[29][0] == 0 && cuentaCelulasVivas == 3){
-			estadoSiguiente[29][0]=1;
+		if(estadoActual[DIMENSION-1][0] == 1 && (cuentaCelulasVivas ==2 || cuentaCelulasVivas == 3)){
+			estadoSiguiente[DIMENSION-1][0]=1;
+		}else if(estadoActual[DIMENSION-1][0] == 0 && cuentaCelulasVivas == 3){
+			estadoSiguiente[DIMENSION-1][0]=1;
 		}else{
-			estadoSiguiente[29][0]=0;	
+			estadoSiguiente[DIMENSION-1][0]=0;	
 		}
 
-		// Compruebo primera fila. Las comprobaciones (i-1) no se realizan -----------------------------------------
-		for(int j=1; j<29; j++){
+		// Compruebo primera fila. Las comprobaciones (i-1) no se realizan ------------------------
+		for(int j=1; j<(DIMENSION-1); j++){
 			cuentaCelulasVivas=0;
 			if(estadoActual[0][j-1]==1){
 				cuentaCelulasVivas++;
@@ -200,35 +214,35 @@ public class Tablero{
 			}
 		}
 
-		// Compruebo ultima fila. Las comprobaciones (i+1) no se realizan --------------------------------------------------
-		for(int j=1; j<29; j++){
+		// Compruebo ultima fila. Las comprobaciones (i+1) no se realizan -----------------------
+		for(int j=1; j<(DIMENSION-1); j++){
 			cuentaCelulasVivas=0;
-				if(estadoActual[28][j-1]==1){
+				if(estadoActual[DIMENSION-2][j-1]==1){
 				cuentaCelulasVivas++;
 			}
-			if(estadoActual[28][j]==1){
+			if(estadoActual[DIMENSION-2][j]==1){
 				cuentaCelulasVivas++;
 			}
-			if(estadoActual[28][j+1]==1){
+			if(estadoActual[DIMENSION-2][j+1]==1){
 				cuentaCelulasVivas++;
 			}
-			if(estadoActual[29][j-1]==1){
+			if(estadoActual[DIMENSION-1][j-1]==1){
 				cuentaCelulasVivas++;
 			}
-			if(estadoActual[29][j+1]==1){
+			if(estadoActual[DIMENSION-1][j+1]==1){
 				cuentaCelulasVivas++;
 			}
-			if(estadoActual[29][j] == 1 && (cuentaCelulasVivas ==2 || cuentaCelulasVivas == 3)){
-				estadoSiguiente[29][j]=1;
-			}else if (estadoActual[29][j] == 0 && cuentaCelulasVivas == 3){
-				estadoSiguiente[29][j]=1;
+			if(estadoActual[DIMENSION-1][j] == 1 && (cuentaCelulasVivas ==2 || cuentaCelulasVivas == 3)){
+				estadoSiguiente[DIMENSION-1][j]=1;
+			}else if (estadoActual[DIMENSION-1][j] == 0 && cuentaCelulasVivas == 3){
+				estadoSiguiente[DIMENSION-1][j]=1;
 			}else{
-				estadoSiguiente[29][j]=0;
+				estadoSiguiente[DIMENSION-1][j]=0;
 			}
 		}
 
-		// Compruebo primera columna. Las comprobaciones (j-1) no se realizan -----------------------------------------------
-		for(int i=1; i<29; i++){
+		// Compruebo primera columna. Las comprobaciones (j-1) no se realizan ----------------
+		for(int i=1; i<(DIMENSION-1); i++){
 			cuentaCelulasVivas=0;
 			if(estadoActual[i-1][0]==1){
 				cuentaCelulasVivas++;
@@ -254,36 +268,36 @@ public class Tablero{
 			}
 		}
 
-		// Compruebo última columna. Las comprobaciones (j+1) no se realizan ----------------------------------------------
-		for(int i=1; i<29; i++){
+		// Compruebo última columna. Las comprobaciones (j+1) no se realizan ------------------
+		for(int i=1; i<(DIMENSION-1); i++){
 			cuentaCelulasVivas=0;
-			if(estadoActual[i-1][28]==1){
+			if(estadoActual[i-1][DIMENSION-2]==1){
 				cuentaCelulasVivas++;
 			}
-			if(estadoActual[i-1][29]==1){
+			if(estadoActual[i-1][DIMENSION-1]==1){
 				cuentaCelulasVivas++;
 			}
-			if(estadoActual[i][28]==1){
+			if(estadoActual[i][DIMENSION-2]==1){
 				cuentaCelulasVivas++;
 			}
-			if(estadoActual[i+1][28]==1){
+			if(estadoActual[i+1][DIMENSION-2]==1){
 				cuentaCelulasVivas++;
 			}
-			if(estadoActual[i+1][29]==1){
+			if(estadoActual[i+1][DIMENSION-1]==1){
 				cuentaCelulasVivas++;
 			}
-			if(estadoActual[i][29] == 1 && (cuentaCelulasVivas ==2 || cuentaCelulasVivas == 3)){
-				estadoSiguiente[i][29]=1;
-			}else if (estadoActual[i][29] == 0 && cuentaCelulasVivas == 3){
-				estadoSiguiente[i][29]=1;
+			if(estadoActual[i][DIMENSION-1] == 1 && (cuentaCelulasVivas ==2 || cuentaCelulasVivas == 3)){
+				estadoSiguiente[i][DIMENSION-1]=1;
+			}else if (estadoActual[i][DIMENSION-1] == 0 && cuentaCelulasVivas == 3){
+				estadoSiguiente[i][DIMENSION-1]=1;
 			}else{
-				estadoSiguiente[i][29]=0;
+				estadoSiguiente[i][DIMENSION-1]=0;
 			}
 		}
 
-		// Bucle para comprobar todas las celdas que no están en el contorno -----------------------------------------
-		for(int i=1; i<29; i++){
-			for(int j=1; j<29; j++){
+		// Bucle para comprobar todas las celdas que no están en el contorno ------------------
+		for(int i=1; i<(DIMENSION-1); i++){
+			for(int j=1; j<(DIMENSION-1); j++){
 				cuentaCelulasVivas=0;
 				if(estadoActual[i-1][j-1]==1){
 					cuentaCelulasVivas++;
@@ -319,30 +333,32 @@ public class Tablero{
 			}
 		}
 
-		// En el siguiente bucle hacemos que el array estadoActual se actualice con los valores del estadoSiguiente.
-		for (int i=0; i<30; i++){
-			for (int j=0; j<30; j++){
+		// El array estadoActual[][] se actualiza con los valores del estadoSiguiente[][].
+		for (int i=0; i<DIMENSION; i++){
+			for (int j=0; j<DIMENSION; j++){
 				estadoActual[i][j]=estadoSiguiente[i][j];
 			}
 		}
 	}
 	
-// Método para mostrar las células en pantalla
-	public String toString(Tablero tablero){
+	/** Devuelve, en modo texto, el estadoActual[][]
+	 * @return el estado actual.
+	 */
+	public String toString(){
 		int i=0;
-		while(i<30){
+		representacionCelulas="";
+		while(i<DIMENSION){
 			int j=0;
-			representacionCelulas="";
-			while(j<30){
+			while(j<DIMENSION){
 				if (estadoActual[i][j]==1){
-					representacionCelulas.concat("X"); 
+					representacionCelulas = representacionCelulas.concat("X"); 
 				}
 				else{
-					representacionCelulas.concat("0");
+					representacionCelulas = representacionCelulas.concat("0");
 				}
 				j++;
 			}
-			representacionCelulas.concat("/n");
+			representacionCelulas = representacionCelulas.concat("\n");
 			i++;
 		}
 		return representacionCelulas;
